@@ -7,9 +7,9 @@ const Hero = () => {
   const revealImgRef = useRef(null);
 
   return (
-    <div
-      style={{
        
+      <div
+      style={{
         position: "relative",
         backgroundColor: "#060010",
       }}
@@ -31,6 +31,8 @@ const Hero = () => {
         }
       }}
     >
+     
+      
       <div
         style={{
           display: "flex",
@@ -92,7 +94,7 @@ const Hero = () => {
           maskRepeat: "no-repeat",
         }}
       />
-    </div>
+    </div>    
   );
 };
 
