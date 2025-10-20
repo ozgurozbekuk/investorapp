@@ -1,18 +1,23 @@
-import React from "react";
-import Hero from "@/components/marketing/Hero";
-import { Button } from "@/components/ui/button";
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  SignUpButton,
-  UserButton,
-} from "@clerk/nextjs";
 
-const page = () => {
+import CreatePost from "@/components/CreatePost";
+import WhoToFollow from "@/components/WhoToFollow";
+import { currentUser } from "@clerk/nextjs/server";
+import React from "react";
+
+
+const page =async () => {
+
+  const user = await currentUser();
+
   return (
-    <div className="m-4">
-      <h1>Home page</h1>
+    <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
+      <div className="lg:col-span-6">
+        {user ? <CreatePost/> : null}
+        
+      </div>
+      <div className="hidden lg:block lg:col-span-4 sticky top-20">
+        <WhoToFollow/>
+      </div>
     </div>
   );
 };
