@@ -43,7 +43,7 @@ model Post {
   authorId  String
   content   String?
   image     String?
-  cretedAt  DateTime @default(now())
+  cretedAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   //realitons
