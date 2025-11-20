@@ -38,33 +38,41 @@ export const syncUser = async () => {
 };
 
 
-export const getUserByClerkId = async (clerkId) =>{
-  return prisma.user.findUnique({
-    where:{
-      clerkId,
-    },
-    include:{
-      _count:{
-        select:{
-          followers:true,
-          following:true,
-          post:true
-        }
-      }
-    }
-  })
-}
+export const getUserByClerkId = async (clerkId) => {
+  if (!clerkId) return null;
+  try {
+    return await prisma.user.findUnique({
+      where: {
+        clerkId,
+      },
+      include: {
+        _count: {
+          select: {
+            followers: true,
+            following: true,
+            post: true,
+          },
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error in getUserByClerkId", error);
+    return null;
+  }
+};
 
-export const getDbUserId = async () =>{
-  const {userId:clerkId} = await auth();
-  if(!clerkId) return null
+export const getDbUserId = async () => {
+  try {
+    const { userId: clerkId } = await auth();
+    if (!clerkId) return null;
 
-  const user = await getUserByClerkId(clerkId);
-  
-  if(!user) throw new Error("User not found")
-
-  return user.id;  
-}
+    const user = await getUserByClerkId(clerkId);
+    return user?.id ?? null;
+  } catch (error) {
+    console.error("Error in getDbUserId", error);
+    return null;
+  }
+};
 
 export const getRandomUsers = async() =>{
   try {
@@ -111,6 +119,7 @@ export const getRandomUsers = async() =>{
 export const toggleFollow = async (userId) =>{
     try {
       const authUserId = await getDbUserId();
+      if(!authUserId) return {success:false,error:"Authentication required"};
 
       if(!userId) return;
 
