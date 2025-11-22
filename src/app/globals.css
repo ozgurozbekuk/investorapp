@@ -118,3 +118,28 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes ticker {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+.ticker-move {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.5rem;
+  white-space: nowrap;
+  width: max-content;
+  animation: ticker 50s linear infinite;
+}
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.ticker-item .symbol {
+  font-weight: 600;
+}
+.ticker-item .price {
+  font-family: 'Courier New', Courier, monospace;
+}
