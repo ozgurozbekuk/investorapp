@@ -1,76 +1,45 @@
+// components/Ticker.jsx
 "use client";
 
 import { useEffect, useState } from "react";
+import { getTickerPrices } from "@/actions/ticker.action";
 
 export default function Ticker() {
-  const [items, setItems] = useState({});
+  const [items, setItems] = useState([]);
 
   useEffect(() => {
-    const sse = new EventSource("/api/stream");
-
-    sse.onmessage = (event) => {
+    async function load() {
       try {
-        const msg = JSON.parse(event.data);
-
-        if (msg.type !== "trade" || !Array.isArray(msg.data)) return;
-
-        setItems((prev) => {
-          const next = { ...prev };
-
-          msg.data.forEach((trade) => {
-            const sym = trade.s;
-            const price = trade.p;
-
-            const prevItem = next[sym];
-            const prevPrice = prevItem?.price ?? null;
-
-            const isUp =
-              prevPrice != null ? price > prevPrice : null;
-
-            const change =
-              prevPrice != null ? price - prevPrice : null;
-
-            const percent =
-              prevPrice && prevPrice !== 0
-                ? (change / prevPrice) * 100
-                : null;
-
-            next[sym] = {
-              symbol: sym,
-              price,
-              isUp,
-              change,
-              percent,
-            };
-          });
-
-          return next;
-        });
-      } catch (err) {
-        console.error("SSE parse error", err);
+        const data = await getTickerPrices();
+        if (data && data.length) {
+          setItems(data);
+        }
+      } catch (e) {
+        console.error("Ticker load error", e);
       }
-    };
+    }
 
-    sse.onerror = (err) => {
-      console.error("SSE connection error", err);
-    };
 
-    return () => sse.close();
+    load();
+
+    const interval = setInterval(load, 60000);
+
+    return () => clearInterval(interval);
   }, []);
 
-  const list = Object.values(items);
-  if (!list.length) return null;
+  if (!items.length) return null;
 
   return (
     <div className="w-full overflow-hidden bg-black text-xs text-white border-b border-zinc-700 py-2">
-      <div className="ticker-move flex">
-        {list.map((item) => (
+      <div className="ticker-move flex whitespace-nowrap">
+        {items.map((item) => (
           <span
             key={item.symbol}
-            className="mx-6 flex items-center gap-1"
+            className="mx-6 inline-flex items-center gap-1"
           >
-            <span className="font-semibold">{item.symbol}</span>
-
+            <span className="font-semibold">
+              {item.symbol}
+            </span>
             <span
               className={
                 item.isUp === null
@@ -82,14 +51,12 @@ export default function Ticker() {
             >
               {item.price?.toFixed(2)}
             </span>
-
             {item.isUp === null ? null : item.isUp ? (
               <span className="text-green-400">▲</span>
             ) : (
               <span className="text-red-400">▼</span>
             )}
-
-            {item.percent && (
+            {item.percent != null && (
               <span
                 className={
                   item.isUp ? "text-green-400" : "text-red-400"

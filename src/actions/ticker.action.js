@@ -9,47 +9,69 @@ const SYMBOLS = [
   "META",
   "GOOGL",
   "NFLX",
-  "BTC-USD",
-  "ETH-USD",
-  "BABA",
-  "TSM",
-  "ORCL",
-  "INTC",
-  "AMD",
-  "BA",
-  "NIO",
-  "VTI",
-  "VOO",
-  "QQQ",
-  "DIA",
-  "ARKK",
-  "XLF",
-  "XLK",
-  "USO",
-  "XLE",
-  "GLD",
-  "SLV",
-  "SONY",
-  "TM",
-  "NSANY",
+  "BINANCE:BTCUSDT",
+  "BINANCE:ETHUSDT",
+  "BRK.B", // Berkshire Hathaway
+  "JPM", // JPMorgan Chase
+  "V", // Visa
+  "MA", // Mastercard
+  "KO", // Coca-Cola
+  "PEP", // PepsiCo
+  "DIS", // Walt Disney
+  "NKE", // Nike
+  "ADBE", // Adobe
+  "ORCL", // Oracle
+  "INTC", // Intel
+  "CSCO", // Cisco
+  "PYPL", // PayPal
+  "CRM", // Salesforce
+  "XOM", // Exxon Mobil
+  "CVX", // Chevron
+  "WMT", // Walmart
+  "MCD", // McDonald's
+  "SBUX",
 ];
 
-
-
 export async function getTickerPrices() {
+  const token = process.env.FINNHUB_KEY;
+  if (!token) {
+    console.error("FINNHUB_KEY missing");
+    return [];
+  }
 
   const requests = SYMBOLS.map((symbol) =>
-    fetch(
-      `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${process.env.FINNHUB_KEY}`
-    )
+    fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${token}`)
       .then((res) => (res.ok ? res.json() : null))
-      .then((json) => ({
-        symbol,
-        price: json && json.c != null ? json.c : null,
-      }))
+      .then((json) => {
+        if (!json || json.c == null || json.pc == null) {
+          return {
+            symbol,
+            price: null,
+            change: null,
+            percent: null,
+            isUp: null,
+          };
+        }
+
+        const price = json.c;
+        const prev = json.pc;
+        const change = price - prev;
+        const percent = prev !== 0 ? (change / prev) * 100 : null;
+
+        return {
+          symbol,
+          price,
+          change,
+          percent,
+          isUp: change > 0,
+        };
+      })
       .catch(() => ({
         symbol,
         price: null,
+        change: null,
+        percent: null,
+        isUp: null,
       }))
   );
 
