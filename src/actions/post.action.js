@@ -4,21 +4,41 @@ import { revalidatePath } from "next/cache";
 import { getDbUserId } from "./user.action";
 import prisma from "@/lib/prisma";
 
-export const createPost = async (content, image) => {
+export const createPost = async (content, image, groupId) => {
   try {
-    console.log("abc");
     const userId = await getDbUserId();
-
     if (!userId) return;
+
+    if (groupId) {
+      const membership = await prisma.groupMember.findFirst({
+        where: { groupId, userId, status: "ACTIVE" },
+      });
+      if (!membership) {
+        return { success: false, error: "Join the group to post." };
+      }
+    }
 
     const post = await prisma.post.create({
       data: {
         content,
         image,
         authorId: userId,
+        groupId: groupId || null,
       },
     });
-    revalidatePath("/");
+
+    if (groupId) {
+      const group = await prisma.group.findUnique({
+        where: { id: groupId },
+        select: { slug: true },
+      });
+      if (group?.slug) {
+        revalidatePath(`/groups/${group.slug}`);
+      }
+    } else {
+      revalidatePath("/");
+    }
+
     return { success: true, post };
   } catch (error) {
     console.error("Failed to create post:", error);
@@ -87,6 +107,69 @@ export const getPosts = async () => {
     });
   } catch (error) {
     console.error("Error in getPosts", error);
+    return [];
+  }
+};
+
+export const getGroupPosts = async (groupId) => {
+  try {
+    if (!groupId) return [];
+
+    const posts = await prisma.post.findMany({
+      where: { groupId },
+      orderBy: { cretedAt: "desc" },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            username: true,
+          },
+        },
+        comments: {
+          include: {
+            author: {
+              select: {
+                id: true,
+                username: true,
+                image: true,
+                name: true,
+              },
+            },
+          },
+          orderBy: { createdAt: "asc" },
+        },
+        likes: {
+          select: {
+            userId: true,
+          },
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+          },
+        },
+      },
+    });
+
+    return posts.map((post) => {
+      const { cretedAt, comments, ...rest } = post;
+
+      return {
+        ...rest,
+        createdAt: serializeDate(rest.createdAt ?? cretedAt),
+        updatedAt: serializeDate(rest.updatedAt),
+        comments: comments.map((comment) => ({
+          ...comment,
+          createdAt: serializeDate(comment.createdAt),
+          updatedAt: serializeDate(comment.updatedAt),
+        })),
+      };
+    });
+  } catch (error) {
+    console.error("Error in getGroupPosts", error);
     return [];
   }
 };

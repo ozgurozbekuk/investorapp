@@ -8,6 +8,8 @@ import Link from 'next/link';
 import { Avatar, AvatarImage } from './ui/avatar';
 import { Separator } from "./ui/separator";
 import { LinkIcon, MapPinIcon } from 'lucide-react';
+import GroupSidebar from './GroupSidebar';
+import { searchGroups } from '@/actions/group.action';
 
 const Sidebar = async() => {
     const authUser = await currentUser();
@@ -18,9 +20,10 @@ const Sidebar = async() => {
 
     const user = await getUserByClerkId(authUser.id);
     if(!user) return null
+    const initialGroups = await searchGroups("");
     
   return (
-    <div className="sticky top-20">
+    <div className="sticky top-20 space-y-4">
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-col items-center text-center">
@@ -75,6 +78,7 @@ const Sidebar = async() => {
           </div>
         </CardContent>
       </Card>
+      <GroupSidebar initialGroups={initialGroups} />
     </div>
   )
 }

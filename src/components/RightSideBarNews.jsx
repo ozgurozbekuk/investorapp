@@ -1,4 +1,3 @@
-// app/(feed)/_components/RightSidebarNews.jsx
 import { getMarketNews } from "@/lib/getMarketNews";
 
 // Helper to convert unix time to "10m", "2h", "1d"

@@ -11,7 +11,7 @@ import { createPost } from "@/actions/post.action.js";
 import toast from "react-hot-toast";
 // import ImageUpload from "./ImageUpload";
 
-function CreatePost() {
+function CreatePost({ groupId, placeholder }) {
   const { user } = useUser();
   const [content, setContent] = useState("");
   const [imageUrl, setImageUrl] = useState("");
@@ -22,7 +22,7 @@ function CreatePost() {
     if (!content.trim() && !imageUrl) return;
     setIsPosting(true);
     try {
-      const result = await createPost(content, imageUrl);
+      const result = await createPost(content, imageUrl, groupId);
       if (result?.success) {
         // reset the form
         setContent("");
@@ -30,6 +30,8 @@ function CreatePost() {
         setShowImageUpload(false);
 
         toast.success("Post created successfully");
+      } else {
+        toast.error(result?.error || "Failed to create post");
       }
     } catch (error) {
       console.error("Failed to create post:", error);
@@ -48,7 +50,7 @@ function CreatePost() {
               <AvatarImage src={user?.imageUrl || "/avatar.png"} />
             </Avatar>
             <Textarea
-              placeholder="What's on your mind?"
+              placeholder={placeholder || "What's on your mind?"}
               className="min-h-[100px] resize-none border-none focus-visible:ring-0 p-4 text-base"
               value={content}
               onChange={(e) => setContent(e.target.value)}

@@ -36,6 +36,9 @@ model User {
 
   notifications        Notification[] @relation("userNotifications") //received notification
   notificationsCreated Notification[] @relation("notificationCreator") //notifications triggered by user
+
+  groupMembers GroupMember[]
+  ownedGroups  Group[]
 }
 
 model Post {
@@ -43,14 +46,16 @@ model Post {
   authorId  String
   content   String?
   image     String?
-  cretedAt DateTime @default(now())
+  cretedAt  DateTime @default(now())
   updatedAt DateTime @updatedAt
+  groupId   String?
 
   //realitons
   author        User           @relation(fields: [authorId], references: [id], onDelete: Cascade) // Cascade delete => when author deleted delete all posts.
   comments      Comment[]
   likes         Like[]
   notifications Notification[]
+  group         Group?         @relation(fields: [groupId], references: [id])
 }
 
 model Comment {
@@ -120,3 +125,57 @@ enum NotificationType {
   FOLLOW
 }
 
+model Group {
+  id           String       @id @default(cuid())
+  name         String
+  slug         String       @unique
+  description  String?
+  type         GroupType    @default(GENERAL)
+  privacy      GroupPrivacy @default(PUBLIC)
+  tickerSymbol String? // optional: "AAPL", "BTC", etc.
+
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [id])
+
+  members GroupMember[]
+  posts   Post[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model GroupMember {
+  id      String @id @default(cuid())
+  userId  String
+  groupId String
+
+  user  User  @relation(fields: [userId], references: [id])
+  group Group @relation(fields: [groupId], references: [id])
+
+  role      GroupRole    @default(MEMBER)
+  status    MemberStatus @default(ACTIVE)
+  createdAt DateTime     @default(now())
+}
+
+enum GroupType {
+  STOCK
+  COMMODITY
+  GENERAL
+}
+
+enum GroupPrivacy {
+  PUBLIC
+  PRIVATE
+}
+
+enum GroupRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum MemberStatus {
+  ACTIVE
+  PENDING
+  INVITED
+}
