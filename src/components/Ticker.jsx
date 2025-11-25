@@ -1,8 +1,7 @@
-// components/Ticker.jsx
 "use client";
 
 import { useEffect, useState } from "react";
-import { getTickerPrices } from "@/actions/ticker.action";
+import { getTickerPrices } from "../lib/getTickerData";
 
 export default function Ticker() {
   const [items, setItems] = useState([]);

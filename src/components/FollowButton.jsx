@@ -26,7 +26,7 @@ const FollowButton = ({ userId }) => {
       size={"sm"}
       variant={"secondary"}
       onClick={handleFollow}
-      disable={isLoading}
+      disabled={isLoading}
       className="w-20"
     >{isLoading ? <Loader2Icon className="size-4 animate-spin"/> : "Follow"}</Button>
   );
