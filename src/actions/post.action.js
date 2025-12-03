@@ -54,6 +54,7 @@ const serializeDate = (value) => {
 export const getPosts = async () => {
   try {
     const posts = await prisma.post.findMany({
+      where: { groupId: null },
       orderBy: { cretedAt: "desc" },
       include: {
         author: {

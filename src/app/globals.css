@@ -117,6 +117,14 @@
   body {
     @apply bg-background text-foreground;
   }
+  html:not(.dark) body {
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+  html.dark body {
+    font-size: 1rem;
+    font-weight: 500;
+  }
 }
 
 /* globals.css */

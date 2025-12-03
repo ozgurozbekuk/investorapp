@@ -5,6 +5,7 @@ import CreatePost from "@/components/CreatePost";
 import PostCard from "@/components/PostCard";
 import RightSidebarNews from "@/components/RightSideBarNews";
 import WhoToFollow from "@/components/WhoToFollow";
+import AiAssistant from "@/components/AiAssistant";
 import { currentUser } from "@clerk/nextjs/server";
 import React from "react";
 
@@ -16,20 +17,23 @@ const page =async () => {
   const dbUserId = await getDbUserId();
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
-      <div className="lg:col-span-6">
-        {user ? <CreatePost/> : null}
-        <div className="space-y-6">
-          {posts.map((post) =>(
-             <PostCard key={post.id} post={post} dbUserId={dbUserId}/>
-          ))}
+    <>
+      <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
+        <div className="lg:col-span-6">
+          {user ? <CreatePost/> : null}
+          <div className="space-y-6">
+            {posts.map((post) =>(
+               <PostCard key={post.id} post={post} dbUserId={dbUserId}/>
+            ))}
+          </div>
+        </div>
+        <div className="hidden lg:block lg:col-span-4 sticky top-20 space-y-6">
+          <WhoToFollow/>
+          <RightSidebarNews/>
         </div>
       </div>
-      <div className="hidden lg:block lg:col-span-4 sticky top-20 space-y-6">
-        <WhoToFollow/>
-        <RightSidebarNews/>
-      </div>
-    </div>
+      <AiAssistant />
+    </>
   );
 };
 

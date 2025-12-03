@@ -53,7 +53,12 @@ export default async function GroupDetailPage({ params }) {
             <Link href="/">Back home</Link>
           </Button>
           {isOwner && (
-            <DeleteGroupButton groupId={group.id} />
+            <>
+              <Button variant="secondary" asChild>
+                <Link href={`/groups/${group.slug}/settings`}>Settings</Link>
+              </Button>
+              <DeleteGroupButton groupId={group.id} />
+            </>
           )}
         </div>
       </div>

@@ -169,3 +169,58 @@ export async function deleteGroup(groupId) {
   revalidatePath("/");
   return true;
 }
+
+//Update group settings (owner only)
+export async function updateGroup(formData) {
+  const userId = await getDbUserId();
+  if (!userId) {
+    throw new Error("Not authenticated");
+  }
+
+  const groupId = formData.get("groupId");
+  const name = (formData.get("name") || "").toString().trim();
+  const description = (formData.get("description") || "").toString().trim();
+  const type = (formData.get("type") || "GENERAL").toString();
+  const privacy = (formData.get("privacy") || "PUBLIC").toString();
+  const tickerSymbolRaw = (formData.get("tickerSymbol") || "").toString().trim();
+  const tickerSymbol = tickerSymbolRaw ? tickerSymbolRaw.toUpperCase() : null;
+
+  if (!groupId || typeof groupId !== "string") {
+    throw new Error("Group not found");
+  }
+
+  if (!name) {
+    throw new Error("Group name is required");
+  }
+
+  const allowedTypes = ["GENERAL", "STOCK", "COMMODITY"];
+  const allowedPrivacy = ["PUBLIC", "PRIVATE"];
+
+  const group = await prisma.group.findUnique({
+    where: { id: groupId },
+    select: { ownerId: true, slug: true },
+  });
+
+  if (!group) {
+    throw new Error("Group not found");
+  }
+
+  if (group.ownerId !== userId) {
+    throw new Error("Only the owner can update this group");
+  }
+
+  await prisma.group.update({
+    where: { id: groupId },
+    data: {
+      name,
+      description,
+      type: allowedTypes.includes(type) ? type : "GENERAL",
+      privacy: allowedPrivacy.includes(privacy) ? privacy : "PUBLIC",
+      tickerSymbol,
+    },
+  });
+
+  revalidatePath("/");
+  revalidatePath(`/groups/${group.slug}`);
+  redirect(`/groups/${group.slug}`);
+}

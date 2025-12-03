@@ -93,6 +93,17 @@ function PostCard({ post, dbUserId }) {
     }
   };
 
+  const renderHashtags = (text) =>
+    (text || "").split(/(#[A-Za-z0-9_]+)/g).map((part, index) =>
+      part.startsWith("#") && part.length > 1 ? (
+        <span key={index} className="text-blue-600 font-semibold">
+          {part}
+        </span>
+      ) : (
+        <span key={index}>{part}</span>
+      )
+    );
+
   return (
     <Card className="overflow-hidden">
       <CardContent className="p-4 sm:p-6">
@@ -130,8 +141,8 @@ function PostCard({ post, dbUserId }) {
                   />
                 )}
               </div>
-              <p className="mt-2 text-sm text-foreground break-words">
-                {post.content}
+              <p className="mt-2 text-sm text-foreground break-words whitespace-pre-wrap">
+                {renderHashtags(post.content)}
               </p>
             </div>
           </div>
@@ -220,7 +231,9 @@ function PostCard({ post, dbUserId }) {
                           {formatTime(comment.createdAt ?? comment.cretedAt)}
                         </span>
                       </div>
-                      <p className="text-sm break-words">{comment.content}</p>
+                      <p className="text-sm break-words whitespace-pre-wrap">
+                        {renderHashtags(comment.content)}
+                      </p>
                     </div>
                   </div>
                 ))}
