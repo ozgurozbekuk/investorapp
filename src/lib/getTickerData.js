@@ -11,6 +11,15 @@ const SYMBOLS = [
   "NFLX",
   "BINANCE:BTCUSDT",
   "BINANCE:ETHUSDT",
+  "BINANCE:SOLUSDT",
+  "BINANCE:ADAUSDT",
+  "BINANCE:AVAXUSDT",
+  "BINANCE:XRPUSDT",
+  "BINANCE:DOGEUSDT",
+  "BINANCE:MATICUSDT",
+  "BINANCE:DOTUSDT",
+  "BINANCE:LINKUSDT",
+  "BINANCE:LTCUSDT",
   "BRK.B", // Berkshire Hathaway
   "JPM", // JPMorgan Chase
   "V", // Visa
@@ -56,7 +65,7 @@ export async function getTickerPrices() {
         const price = json.c;
         const prev = json.pc;
         const change = price - prev;
-        const percent = prev !== 0 ? (change / prev) * 100 : null;
+        const percent = prev !== 0 ? (change / prev) * 100 : 0;
 
         return {
           symbol,

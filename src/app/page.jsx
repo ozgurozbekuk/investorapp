@@ -6,6 +6,7 @@ import PostCard from "@/components/PostCard";
 import RightSidebarNews from "@/components/RightSideBarNews";
 import WhoToFollow from "@/components/WhoToFollow";
 import AiAssistant from "@/components/AiAssistant";
+import TrendingTopics from "@/components/TrendingTopics";
 import { currentUser } from "@clerk/nextjs/server";
 import React from "react";
 
@@ -30,6 +31,7 @@ const page =async () => {
         <div className="hidden lg:block lg:col-span-4 sticky top-20 space-y-6">
           <WhoToFollow/>
           <RightSidebarNews/>
+          <TrendingTopics/>
         </div>
       </div>
       <AiAssistant />

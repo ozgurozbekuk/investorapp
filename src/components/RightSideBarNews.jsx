@@ -18,19 +18,11 @@ export default async function RightSidebarNews() {
   const news = await getMarketNews();
 
   return (
-    <section
-      className="
-        rounded-2xl p-4 text-sm shadow-sm 
-        bg-white/90 dark:bg-zinc-900/80
-        border-default    /* uses your global border */
-      "
-    >
-      <h2 className="text-sm font-semibold mb-3 text-zinc-900 dark:text-zinc-100">
-        Market news
-      </h2>
+    <section className="rounded-xl border border-border bg-card text-card-foreground p-4 text-sm shadow-sm">
+      <h2 className="text-sm font-semibold mb-3">Market news</h2>
 
       {news.length === 0 && (
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="text-xs text-muted-foreground">
           Could not load market news. Check API key.
         </p>
       )}
@@ -45,25 +37,20 @@ export default async function RightSidebarNews() {
               className="group flex flex-col gap-1"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
                   {item.source}
                 </span>
-                <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                <span className="text-[11px] text-muted-foreground">
                   {timeAgoFromUnix(item.datetime)}
                 </span>
               </div>
 
-              <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 group-hover:underline line-clamp-2">
+              <p className="text-sm font-medium group-hover:underline line-clamp-2">
                 {item.headline}
               </p>
 
               <span
-                className="
-                  inline-flex w-fit rounded-full
-                  bg-red-800 text-zinc-100
-                  px-3 py-1 text-[12px]
-                  dark:bg-red-800 dark:text-zinc-100 
-                "
+                className="inline-flex w-fit rounded-full bg-primary/15 text-primary px-3 py-1 text-[12px]"
               >
                 {item.category}
               </span>

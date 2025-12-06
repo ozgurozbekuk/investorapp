@@ -53,6 +53,7 @@ const serializeDate = (value) => {
 
 export const getPosts = async () => {
   try {
+    const userId = await getDbUserId();
     const posts = await prisma.post.findMany({
       where: { groupId: null },
       orderBy: { cretedAt: "desc" },
@@ -83,22 +84,36 @@ export const getPosts = async () => {
             userId: true,
           },
         },
+        dislikes: {
+          select: {
+            userId: true,
+          },
+        },
         _count: {
           select: {
             likes: true,
             comments: true,
+            dislikes: true,
           },
         },
       },
     });
 
-    return posts.map((post) => {
-      const { cretedAt, comments, ...rest } = post;
+    const transformed = posts.map((post) => {
+      const { cretedAt, comments, likes, dislikes, ...rest } = post;
 
       return {
         ...rest,
         createdAt: serializeDate(rest.createdAt ?? cretedAt),
         updatedAt: serializeDate(rest.updatedAt),
+        likes,
+        dislikes,
+        likesCount: post._count?.likes ?? likes.length,
+        dislikesCount: post._count?.dislikes ?? dislikes.length,
+        isLikedByMe: userId ? likes.some((like) => like.userId === userId) : false,
+        isDislikedByMe: userId
+          ? dislikes.some((dislike) => dislike.userId === userId)
+          : false,
         comments: comments.map((comment) => ({
           ...comment,
           createdAt: serializeDate(comment.createdAt),
@@ -106,8 +121,45 @@ export const getPosts = async () => {
         })),
       };
     });
+
+    return transformed.sort(
+      (a, b) => (b.likesCount ?? 0) - (a.likesCount ?? 0)
+    );
   } catch (error) {
     console.error("Error in getPosts", error);
+    return [];
+  }
+};
+
+export const getTrendingTopics = async () => {
+  try {
+    const posts = await prisma.post.findMany({
+      select: { content: true },
+      orderBy: { cretedAt: "desc" },
+      take: 200,
+    });
+
+    const counts = new Map();
+
+    for (const post of posts) {
+      const matches = (post.content || "").match(/#([A-Za-z0-9_]+)/g);
+      if (!matches) continue;
+
+      // Deduplicate per post to avoid inflated counts from repeats in one post
+      const uniqueTags = Array.from(new Set(matches.map((tag) => tag.trim())));
+
+      uniqueTags.forEach((tag) => {
+        const key = tag.toLowerCase();
+        const current = counts.get(key) || { tag, count: 0 };
+        counts.set(key, { tag: current.tag, count: current.count + 1 });
+      });
+    }
+
+    return Array.from(counts.values())
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+  } catch (error) {
+    console.error("Error in getTrendingTopics", error);
     return [];
   }
 };
@@ -115,6 +167,7 @@ export const getPosts = async () => {
 export const getGroupPosts = async (groupId) => {
   try {
     if (!groupId) return [];
+    const userId = await getDbUserId();
 
     const posts = await prisma.post.findMany({
       where: { groupId },
@@ -146,22 +199,36 @@ export const getGroupPosts = async (groupId) => {
             userId: true,
           },
         },
+        dislikes: {
+          select: {
+            userId: true,
+          },
+        },
         _count: {
           select: {
             likes: true,
             comments: true,
+            dislikes: true,
           },
         },
       },
     });
 
-    return posts.map((post) => {
-      const { cretedAt, comments, ...rest } = post;
+    const transformed = posts.map((post) => {
+      const { cretedAt, comments, likes, dislikes, ...rest } = post;
 
       return {
         ...rest,
         createdAt: serializeDate(rest.createdAt ?? cretedAt),
         updatedAt: serializeDate(rest.updatedAt),
+        likes,
+        dislikes,
+        likesCount: post._count?.likes ?? likes.length,
+        dislikesCount: post._count?.dislikes ?? dislikes.length,
+        isLikedByMe: userId ? likes.some((like) => like.userId === userId) : false,
+        isDislikedByMe: userId
+          ? dislikes.some((dislike) => dislike.userId === userId)
+          : false,
         comments: comments.map((comment) => ({
           ...comment,
           createdAt: serializeDate(comment.createdAt),
@@ -169,6 +236,10 @@ export const getGroupPosts = async (groupId) => {
         })),
       };
     });
+
+    return transformed.sort(
+      (a, b) => (b.likesCount ?? 0) - (a.likesCount ?? 0)
+    );
   } catch (error) {
     console.error("Error in getGroupPosts", error);
     return [];

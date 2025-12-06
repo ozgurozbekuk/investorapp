@@ -1,6 +1,6 @@
 "use client";
 
-import { createComment, deletePost, toggleLike } from "@/actions/post.action";
+import { createComment, deletePost } from "@/actions/post.action";
 import { SignInButton, useUser } from "@clerk/nextjs";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -11,23 +11,31 @@ import { formatDistanceToNow, parseISO, isValid } from "date-fns";
 import { DeleteAlertDialog } from "./DeleteAlertDialog";
 import { Button } from "./ui/button";
 import {
-  HeartIcon,
   LogInIcon,
   MessageCircleIcon,
   SendIcon,
+  ThumbsDownIcon,
+  ThumbsUpIcon,
 } from "lucide-react";
 import { Textarea } from "./ui/textarea";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
 function PostCard({ post, dbUserId }) {
   const { user } = useUser();
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const [newComment, setNewComment] = useState("");
   const [isCommenting, setIsCommenting] = useState(false);
-  const [isLiking, setIsLiking] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [hasLiked, setHasLiked] = useState(
-    post.likes.some((like) => like.userId === dbUserId)
+  const [hasLiked, setHasLiked] = useState(!!post.isLikedByMe);
+  const [hasDisliked, setHasDisliked] = useState(!!post.isDislikedByMe);
+  const [likesCount, setLikesCount] = useState(
+    post.likesCount ?? post._count?.likes ?? post.likes?.length ?? 0
   );
-  const [optimisticLikes, setOptmisticLikes] = useState(post._count.likes);
+  const [dislikesCount, setDislikesCount] = useState(
+    post.dislikesCount ?? post._count?.dislikes ?? post.dislikes?.length ?? 0
+  );
   const [showComments, setShowComments] = useState(false);
 
   // Safely format timestamps (handles Date, number, string, null/invalid)
@@ -48,20 +56,40 @@ function PostCard({ post, dbUserId }) {
     }
   };
 
-  const handleLike = async () => {
-    if (isLiking) return;
-    try {
-      setIsLiking(true);
-      setHasLiked((prev) => !prev);
-      setOptmisticLikes((prev) => prev + (hasLiked ? -1 : 1));
-      await toggleLike(post.id);
-    } catch (error) {
-      setOptmisticLikes(post._count.likes);
-      setHasLiked(post.likes.some((like) => like.userId === dbUserId));
-    } finally {
-      setIsLiking(false);
-    }
+  const handleReactionUpdate = (data) => {
+    setLikesCount(data.likesCount);
+    setDislikesCount(data.dislikesCount);
+    setHasLiked(data.isLikedByMe);
+    setHasDisliked(data.isDislikedByMe);
+    router.refresh();
+    queryClient.invalidateQueries({ queryKey: ["posts-feed"] });
   };
+
+  const likeMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/posts/${post.id}/like`, { method: "POST" });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error || "Failed to toggle like");
+      }
+      return res.json();
+    },
+    onSuccess: handleReactionUpdate,
+    onError: () => toast.error("Failed to update like"),
+  });
+
+  const dislikeMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/posts/${post.id}/dislike`, { method: "POST" });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error || "Failed to toggle dislike");
+      }
+      return res.json();
+    },
+    onSuccess: handleReactionUpdate,
+    onError: () => toast.error("Failed to update dislike"),
+  });
 
   const handleAddComment = async () => {
     if (!newComment.trim() || isCommenting) return;
@@ -166,17 +194,18 @@ function PostCard({ post, dbUserId }) {
                 size="sm"
                 className={`text-muted-foreground gap-2 ${
                   hasLiked
-                    ? "text-red-500 hover:text-red-600"
-                    : "hover:text-red-500"
+                    ? "text-blue-600 hover:text-blue-700"
+                    : "hover:text-blue-600"
                 }`}
-                onClick={handleLike}
+                onClick={() => likeMutation.mutate()}
+                disabled={likeMutation.isPending || dislikeMutation.isPending}
               >
                 {hasLiked ? (
-                  <HeartIcon className="size-5 fill-current" />
+                  <ThumbsUpIcon className="size-5 fill-current" />
                 ) : (
-                  <HeartIcon className="size-5" />
+                  <ThumbsUpIcon className="size-5" />
                 )}
-                <span>{optimisticLikes}</span>
+                <span className="text-sm font-semibold">{likesCount}</span>
               </Button>
             ) : (
               <SignInButton mode="modal">
@@ -185,8 +214,38 @@ function PostCard({ post, dbUserId }) {
                   size="sm"
                   className="text-muted-foreground gap-2"
                 >
-                  <HeartIcon className="size-5" />
-                  <span>{optimisticLikes}</span>
+                  <ThumbsUpIcon className="size-5" />
+                  <span className="text-sm font-semibold">{likesCount}</span>
+                </Button>
+              </SignInButton>
+            )}
+
+            {user ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`text-muted-foreground gap-2 ${
+                  hasDisliked
+                    ? "text-blue-600 hover:text-blue-700"
+                    : "hover:text-blue-600"
+                }`}
+                onClick={() => dislikeMutation.mutate()}
+                disabled={likeMutation.isPending || dislikeMutation.isPending}
+              >
+                <ThumbsDownIcon
+                  className={`size-5 ${hasDisliked ? "fill-current" : ""}`}
+                />
+                <span className="text-sm font-semibold">{dislikesCount}</span>
+              </Button>
+            ) : (
+              <SignInButton mode="modal">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground gap-2"
+                >
+                  <ThumbsDownIcon className="size-5" />
+                  <span className="text-sm font-semibold">{dislikesCount}</span>
                 </Button>
               </SignInButton>
             )}

@@ -21,7 +21,7 @@ export default function Ticker() {
 
     load();
 
-    const interval = setInterval(load, 60000);
+    const interval = setInterval(load, 180000); // refresh every 3 minutes
 
     return () => clearInterval(interval);
   }, []);
@@ -29,7 +29,7 @@ export default function Ticker() {
   if (!items.length) return null;
 
   return (
-    <div className="w-full overflow-hidden bg-black text-xs text-white border-b border-zinc-700 py-2">
+    <div className="w-full overflow-hidden bg-card text-xs text-card-foreground border-b border-border py-4 shadow-sm">
       <div className="ticker-move flex whitespace-nowrap">
         {items.map((item) => (
           <span
@@ -42,7 +42,7 @@ export default function Ticker() {
             <span
               className={
                 item.isUp === null
-                  ? "text-zinc-200"
+                  ? "text-muted-foreground"
                   : item.isUp
                   ? "text-green-400"
                   : "text-red-400"
