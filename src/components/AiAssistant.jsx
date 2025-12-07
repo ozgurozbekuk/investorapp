@@ -1,5 +1,6 @@
 "use client";
 
+import { useUser } from "@clerk/nextjs";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
@@ -19,6 +20,7 @@ const suggestions = [
 ];
 
 const AiAssistant = () => {
+  const { user, isLoaded } = useUser();
   const containerRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
@@ -95,6 +97,8 @@ const AiAssistant = () => {
         .join(" "),
     [messages]
   );
+
+  if (!isLoaded || !user) return null;
 
   return (
     <div
