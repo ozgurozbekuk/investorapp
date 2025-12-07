@@ -27,6 +27,7 @@ export default function MarketNewsSection() {
   });
 
   const articles = (data ?? []).slice(0, 5);
+ 
 
   return (
     <Card>

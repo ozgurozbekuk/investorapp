@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getPosts, getTrendingTopics } from "@/actions/post.action";
 import { getDbUserId } from "@/actions/user.action";
 import ExploreContent from "@/components/explore/ExploreContent";

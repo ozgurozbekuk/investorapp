@@ -128,11 +128,11 @@ const AiAssistant = () => {
                     }`}
                   >
                     <div
-                      className={`rounded-lg px-3 py-2 max-w-[90%] shadow ${
-                        message.role === "assistant"
-                          ? "bg-sky-500/15 text-slate-50 border border-sky-200/20"
-                          : "bg-sky-400 text-slate-900"
-                      }`}
+                    className={`rounded-lg px-3 py-2 max-w-[90%] shadow ${
+                      message.role === "assistant"
+                        ? "bg-sky-500/15 text-slate-50 border border-sky-200/20"
+                        : "bg-sky-400 text-slate-900"
+                      } max-h-40 overflow-auto whitespace-pre-wrap break-words`}
                     >
                       {message.content}
                     </div>

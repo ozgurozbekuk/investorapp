@@ -9,6 +9,7 @@ import { ImageIcon, Loader2Icon, SendIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { createPost } from "@/actions/post.action.js";
 import toast from "react-hot-toast";
+import ImageUpload from "./ImageUpload";
 // import ImageUpload from "./ImageUpload";
 
 function CreatePost({ groupId, placeholder }) {
@@ -58,7 +59,7 @@ function CreatePost({ groupId, placeholder }) {
             />
           </div>
 
-          {/* {(showImageUpload || imageUrl) && (
+          {(showImageUpload || imageUrl) && (
             <div className="border rounded-lg p-4">
               <ImageUpload
                 endpoint="postImage"
@@ -69,7 +70,7 @@ function CreatePost({ groupId, placeholder }) {
                 }}
               />
             </div>
-          )} */}
+          )}
 
           <div className="flex items-center justify-between border-t pt-4">
             <div className="flex space-x-2">

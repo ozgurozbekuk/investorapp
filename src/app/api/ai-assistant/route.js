@@ -12,14 +12,39 @@ export async function POST(req) {
       );
     }
 
+    const sanitizedMessages = messages
+      .filter(
+        (m) =>
+          m &&
+          typeof m.content === "string" &&
+          ["system", "user", "assistant"].includes(m.role)
+      )
+      .map((m) => ({
+        role: m.role,
+        content: m.content.trim(),
+      }));
+
+    const seedSystemPrompt =
+      "You are InvestorApp AI, a concise, friendly, real-life assistant. " +
+      "Answer clearly, keep responses actionable, and decline unsafe or off-topic requests.";
+
+    const payloadMessages = [
+      { role: "system", content: seedSystemPrompt },
+      ...sanitizedMessages,
+    ];
+
+    if (payloadMessages.length === 1) {
+      return NextResponse.json(
+        { error: "Please provide at least one user message." },
+        { status: 400 }
+      );
+    }
+
     const payload = {
       model: "gpt-4o-mini",
-      messages: messages.map((m) => ({
-        role: m.role === "assistant" ? "assistant" : "user",
-        content: m.content,
-      })),
+      messages: payloadMessages,
       temperature: 0.7,
-      max_tokens: 220,
+      max_tokens: 512,
     };
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {

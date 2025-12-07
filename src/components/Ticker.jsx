@@ -29,7 +29,7 @@ export default function Ticker() {
   if (!items.length) return null;
 
   return (
-    <div className="w-full overflow-hidden bg-card text-xs text-card-foreground border-b border-border py-4 shadow-sm">
+    <div className="w-full overflow-hidden bg-card text-sm text-card-foreground border-b border-border py-4 shadow-sm">
       <div className="ticker-move flex whitespace-nowrap">
         {items.map((item) => (
           <span

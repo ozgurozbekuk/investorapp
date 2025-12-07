@@ -3,6 +3,7 @@ export type StockQuote = {
   name: string;
   price: number;
   changePercent: number;
+  sparkline?: number[];
 };
 
 export type CryptoAsset = {
@@ -10,6 +11,7 @@ export type CryptoAsset = {
   name: string;
   price: number;
   changePercent: number;
+  sparkline?: number[];
 };
 
 export type MarketNewsItem = {

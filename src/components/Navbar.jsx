@@ -17,9 +17,10 @@ async function Navbar() {
           <div className="flex items-center">
             <Link
               href="/"
-              className="text-xl font-bold font-mono tracking-wider text-foreground transition-colors"
+              aria-label="InvestorApp home"
+              className="inline-flex items-center gap-3 text-xl font-bold font-mono tracking-wider text-foreground transition-colors"
             >
-              Agoravest
+              <span className="leading-none">InvestorApp</span>
             </Link>
           </div>
 
