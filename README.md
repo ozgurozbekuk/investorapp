@@ -34,6 +34,9 @@ InvestorApp is the capstone project for the MIT Emerging Talent (ELO 2) program 
   ![Notifications](public/investappnotification.png)
 - Profile view:  
   ![Profile](public/investappprofile.png)
+- Mobile (bottom nav & feed):  
+  ![Mobile Home](public/iPhone-13-PRO-localhost.png)  
+  ![Mobile Feed](public/iPhone-13-PRO-localhost%20(1).png)
 
 ## Tech Stack
 
