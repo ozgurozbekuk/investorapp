@@ -4,7 +4,7 @@ Investor-focused social media platform where traders share ideas, follow markets
 
 ## Overview
 
-InvestorApp is the capstone project for the MIT Emerging Talent (ELO 2) program – Track 2. It blends the familiar feed and interaction patterns of Twitter/Facebook with investor-centric features: market tickers, themed groups, and real-time reactions to price action. The goal is to demonstrate full-stack web skills and deliver a portfolio-ready, production-style product.
+InvestorApp is the capstone project for the MIT Emerging Talent (ELO 2) program – It blends the familiar feed and interaction patterns of Twitter/Facebook with investor-centric features: market tickers, themed groups, and real-time reactions to price action. The goal is to demonstrate full-stack web skills and deliver a portfolio-ready, production-style product.
 
 ## Key Features
 
