@@ -1,4 +1,4 @@
-# InvestorApp — Social Investing Feed with Live Markets
+# InvestorApp — A social platform where investors share insights, trends, and ideas in real time.
 
 Investor-focused social media platform where traders share ideas, follow markets, and engage around live price movements.
 
