@@ -4,6 +4,7 @@ import { searchGroups } from "@/actions/group.action";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import GroupsSearch from "./GroupsSearch";
 
 export default async function GroupsPage() {
   const groups = await searchGroups("");
@@ -27,31 +28,7 @@ export default async function GroupsPage() {
           <CardTitle>All groups</CardTitle>
         </CardHeader>
         <CardContent>
-          {groups.length ? (
-            <div className="flex flex-wrap gap-3">
-              {groups.map((group) => (
-                <Button
-                  key={group.id}
-                  variant="outline"
-                  className="gap-2 rounded-full"
-                  asChild
-                >
-                  <Link href={`/groups/${group.slug}`}>
-                    <span className="font-medium">{group.name}</span>
-                    {group.tickerSymbol ? (
-                      <span className="text-xs uppercase text-muted-foreground">
-                        {group.tickerSymbol}
-                      </span>
-                    ) : null}
-                  </Link>
-                </Button>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              No groups yet. Be the first to create one.
-            </p>
-          )}
+          <GroupsSearch initialGroups={groups} />
         </CardContent>
       </Card>
     </div>
