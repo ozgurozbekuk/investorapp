@@ -31,7 +31,7 @@ export default function RootLayout({ children }) {
         <body className={`${interDisplay.variable} antialiased`}>
           <ThemeProvider
             attribute="class"
-            defaultTheme="light"
+            defaultTheme="dark"
             enableSystem
             disableTransitionOnChange
           >
